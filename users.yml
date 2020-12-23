@@ -1,0 +1,57 @@
+- name: Add Users
+  hosts: arch
+  tasks:
+
+  - name: Set Root password
+    command: chroot /mnt chpasswd
+    args:
+      stdin: "root:arch"
+
+  - name: Create Vagrant account
+    command: chroot /mnt useradd -m -g users -G wheel vagrant
+    register: createuser_output
+    ignore_errors: True
+    changed_when: createuser_output.failed == false
+  
+  - name: Set vagrant default password
+    command: chroot /mnt chpasswd
+    args:
+      stdin: "vagrant:vagrant"
+    when: createuser_output.failed == false
+
+  - name: create vagrant .ssh folder
+    file:
+      path: /mnt/home/vagrant/.ssh
+      state: directory
+      group: users
+      mode: '0700'
+
+  - name: copy vagrant public key
+    copy:
+      src: ./files/vagrant.pub
+      dest: /mnt/home/vagrant/.ssh/authorized_keys
+      force: yes
+      decrypt: true
+      group: users
+      mode: '0700'
+
+  - name: set .ssh owner to vagrant user
+    command: chroot /mnt chown -R vagrant /home/vagrant/.ssh
+
+  - name: Allow admin accounts to execute any command
+    lineinfile:
+      path: /mnt/etc/sudoers
+      owner: root
+      group: root
+      mode: 0644
+      regexp: "^# %wheel ALL=(ALL) ALL"
+      line: "%wheel ALL=(ALL) ALL"
+  
+  - name: Allow vagrant account to execute any command no password
+    lineinfile:
+      path: /mnt/etc/sudoers
+      owner: root
+      group: root
+      mode: 0644
+      regexp: "^# %wheel ALL=(ALL) NOPASSWD: ALL"
+      line: "vagrant ALL=(ALL) NOPASSWD: ALL"

@@ -1,0 +1,16 @@
+mkinitcpio_hooks: # Order is important
+  - base
+  - udev
+  - autodetect
+  - keyboard
+  - keymap
+  - consolefont
+  - modconf
+  - block
+  - encrypt
+  - lvm2
+  - filesystems
+  - fsck
+
+mkinitcpio_modules:
+  - ext4

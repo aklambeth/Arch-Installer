@@ -1,0 +1,8 @@
+---
+- name: configure locale.gen
+  lineinfile: dest=/mnt/etc/locale.gen line="en_GB.UTF-8 UTF-8" owner=root group=root mode=0644
+
+- name: run locale-gen inside chroot
+  command: chroot /mnt locale-gen
+  register: chroot_locale_gen
+  changed_when: "chroot_locale_gen.rc == 0"

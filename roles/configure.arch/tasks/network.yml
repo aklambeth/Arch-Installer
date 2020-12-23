@@ -1,0 +1,12 @@
+---
+- name: set no dns lookup on ssh for ansible
+  lineinfile:
+    path: /mnt/etc/ssh/sshd_config
+    owner: root
+    group: root
+    mode: 0644
+    regexp: "^#UseDNS no"
+    line: "UseDNS no"
+
+- name: configure network (dhcp)
+  template: src=./templates/10-dhcp-ethernet.network.j2 dest=/mnt/etc/systemd/network/10-dhcp-ethernet.network owner=root group=root mode=0644

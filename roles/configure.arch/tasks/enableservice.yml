@@ -1,0 +1,15 @@
+  - name: run systemd-firstboot
+    command: chroot /mnt systemd-firstboot --locale=en_GB.UTF-8 --timezone=Europe/London --hostname=Arch1 --keymap=uk
+    register: chroot_systemd_firstboot
+    changed_when: "chroot_systemd_firstboot.rc == 0"
+
+  - name: enable services inside chroot
+    command: chroot /mnt systemctl enable sshd systemd-networkd systemd-resolved fstrim.timer
+    register: chroot_systemd_services
+    changed_when: "chroot_systemd_services.rc == 0"
+
+  - name: Hyper-V integration services
+    command: chroot /mnt systemctl enable hv_fcopy_daemon hv_kvp_daemon hv_vss_daemon
+    register: chroot_systemd_services
+    changed_when: "chroot_systemd_services.rc == 0"
+    when: "'guest' in ansible_virtualization_role and 'VirtualPC' in ansible_virtualization_type"

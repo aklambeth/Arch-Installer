@@ -1,0 +1,32 @@
+---
+- name: Setup boot device
+  community.general.parted:
+    device: "{{ boot_device | default('/dev/sdb') }}"
+    number: 1
+    label: gpt
+    name: "boot"
+    state: present
+    fs_type: ext4
+    part_end: 500MB
+
+- name: Setup EFI Partition
+  community.general.parted:
+    device: "{{ boot_device | default('/dev/sdb') }}"
+    number: 2
+    label: gpt
+    name: "efi"
+    flags: [ esp ]
+    state: present
+    part_start: 500MB
+    part_end: 700MB
+
+- name: Create an boot partition on /dev/sdb1
+  community.general.filesystem:
+    fstype: ext4
+    dev: "{{ boot_device | default('/dev/sdb') }}1"
+
+- name: Create an efi boot partition on /dev/sdb2
+  community.general.filesystem:
+    fstype: vfat
+    dev: "{{ boot_device | default('/dev/sdb') }}2"
+    opts: -F32

@@ -1,0 +1,38 @@
+---
+
+- name: provide default mount options
+  lineinfile:
+    path: /mnt/etc/default/grub
+    owner: root
+    group: root
+    mode: 0644
+    regexp: "^GRUB_CMDLINE_LINUX_DEFAULT="
+    line: "GRUB_CMDLINE_LINUX_DEFAULT=\"loglevel=3 cryptdevice=UUID={{ drive_uuid }}:MyVolGroup:allow-discards quiet\""
+
+- name: enable cryptdisk
+  lineinfile:
+    path: /mnt/etc/default/grub
+    owner: root
+    group: root
+    mode: 0644
+    regexp: "^#GRUB_ENABLE_CRYPTODISK=y"
+    line: "GRUB_ENABLE_CRYPTODISK=y"
+  
+- name: disable uuis
+  lineinfile:
+    path: /mnt/etc/default/grub
+    owner: root
+    group: root
+    mode: 0644
+    regexp: "^#GRUB_DISABLE_LINUX_UUID=true"
+    line: "#GRUB_DISABLE_LINUX_UUID=true"
+
+- name: install grub
+  command: chroot /mnt grub-install --target=x86_64-efi --bootloader-id=id=grub_uefi --recheck
+  register: chroot_grub_install
+  changed_when: "chroot_grub_install.rc == 0"
+
+- name: configure grub
+  command: chroot /mnt grub-mkconfig -o /boot/grub/grub.cfg
+  register: chroot_grub_mkconfig
+  changed_when: "chroot_grub_mkconfig.rc == 0"

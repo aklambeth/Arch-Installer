@@ -1,0 +1,16 @@
+---
+- name: gather facts - again!!
+  setup:
+
+- set_fact:
+    drive_uuid: "{{ ansible_facts['devices'][root_drive]['links']['uuids'][0]}}"
+    network_interface: "{{ ansible_default_ipv4.interface }}"
+  vars:
+    root_drive: 'sda'
+
+- include: locale.yml
+- include: fstab.yml
+- include: network.yml
+- include: mkinitcpio.yml
+- include: grub.yml
+- include: enableservice.yml

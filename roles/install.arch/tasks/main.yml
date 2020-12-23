@@ -1,0 +1,18 @@
+- name: Install Arch Linux base packages # required
+  include_vars: "base_packages.yml" 
+
+- name: Install Arch Linux application packages # optional
+  include_vars: "app_packages.yml"
+
+- name: Install Arch Linux virtual machine guiest additions # optional
+  include_vars: "{{ansible_virtualization_type|lower}}_packages.yml"
+  when: "'guest' in ansible_virtualization_role"
+
+- include: mountfs.yml
+
+- name: Pacstrap base files
+  command: pacstrap /mnt {{ package_list | join(' ') }}
+  vars:
+    package_list: "{{ (base_packages + app_packages + vmguest_packages) }}"
+
+- include: mountchroot.yml

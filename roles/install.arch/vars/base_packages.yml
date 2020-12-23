@@ -1,0 +1,9 @@
+base_packages:
+  - base
+  - base-devel
+  - efibootmgr
+  - grub-efi-x86_64
+  - linux
+  - linux-firmware
+  - lvm2
+  - openssh

@@ -1,0 +1,48 @@
+---
+
+- name: Create a swap filesystem on /dev/sda1
+  community.general.filesystem:
+    fstype: swap
+    dev: /dev/MyVolGroup/swap
+
+- name: Create a ext4 filesystem on /dev/sda2
+  community.general.filesystem:
+    fstype: ext4
+    dev: /dev/MyVolGroup/root
+
+- name: Mount Root
+  mount:
+    path: /mnt
+    src: /dev/MyVolGroup/root
+    fstype: ext4
+    state: mounted
+
+- name: Add boot folder
+  file:
+    path: /mnt/boot
+    state: directory
+    mode: '0755'
+
+- name: Mount boot drive
+  mount:
+    path: /mnt/boot
+    src: /dev/sdb1
+    fstype: ext4
+    state: mounted
+  
+- name: create EFI folder
+  file:
+    path: /mnt/boot/EFI
+    state: directory
+    mode: '0755'
+    
+- name: Mount EFI partition
+  mount:
+    path: /mnt/boot/EFI
+    src: /dev/sdb2
+    fstype: vfat
+    state: mounted
+
+- name: Enable swap
+  command: swapon -v /dev/MyVolGroup/swap
+  

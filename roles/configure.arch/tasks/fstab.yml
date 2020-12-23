@@ -1,0 +1,9 @@
+---
+- name: install fstab
+  command: genfstab -pU /mnt
+  register: genfstab_output
+
+- name: create fstab file
+  copy:
+    content: "{{ genfstab_output.stdout }}\r\ntmpfs       /tmp    tmpfs   defaults,noatime,mode=1777      0       0"
+    dest: "/mnt/etc/fstab"

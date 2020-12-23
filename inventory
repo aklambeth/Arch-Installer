@@ -1,0 +1,9 @@
+all:
+  hosts:
+  children:
+    arch:
+      hosts:
+        arch1:
+      vars:
+        ansible_user: root
+        ansible_password: arch

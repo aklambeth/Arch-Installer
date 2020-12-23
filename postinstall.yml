@@ -1,0 +1,9 @@
+- name: Post Install Tasks
+  hosts: arch
+
+  tasks:
+
+  - name: Install complete - Reboot
+    command: systemctl reboot
+    ignore_errors: yes
+    ignore_unreachable: yes

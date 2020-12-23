@@ -1,0 +1,24 @@
+---
+
+- name: configure mkinitcpio Module
+  lineinfile:
+    path: /mnt/etc/mkinitcpio.conf
+    owner: root
+    group: root
+    mode: 0644
+    regexp: "^MODULES="
+    line: "MODULES=({{ mkinitcpio_modules | join(' ') }})"
+  
+- name: configure mkinitcpio Hooks
+  lineinfile:
+    path: /mnt/etc/mkinitcpio.conf
+    owner: root
+    group: root
+    mode: 0644
+    regexp: "^HOOKS="
+    line: "HOOKS=({{ mkinitcpio_hooks | join(' ') }})"
+
+- name: run mkinitcpio
+  command: chroot /mnt mkinitcpio -p linux
+  register: chroot_mkinitcpio
+  changed_when: "chroot_mkinitcpio.rc == 0" 
