@@ -1,26 +1,5 @@
 ---
-- name: Create LUKS container with a passphrase
-  community.crypto.luks_device:
-    device: "{{ root_device | default('/dev/sda') }}"
-    state: "opened"
-    name: "cryptlvm"
-    passphrase: '{{ passphrase }}'
-    type: luks1
+- include: cryptlvm-passphrase.yml
+  when: passphrase is defined and passphrase | length > 0 
 
-- name: Create Volume group cryptlvm
-  community.general.lvg:
-    vg: MyVolGroup
-    pvs: /dev/mapper/cryptlvm
-
-- name: Create a logical volume of 4gb
-  community.general.lvol:
-    vg: MyVolGroup
-    lv: swap
-    size: 4g
-
-- name: Create root partition
-  community.general.lvol:
-    vg: MyVolGroup
-    lv: root
-    size: +100%FREE
-    shrink: no
+- include: createvolume.yml
