@@ -1,5 +1,7 @@
 app_packages:
   - git
   - neovim
+  - python
+  - python-pip  
   - tmux
   - zsh
