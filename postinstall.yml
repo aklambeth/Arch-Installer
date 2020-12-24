@@ -1,9 +1,22 @@
 - name: Post Install Tasks
   hosts: arch
 
+  handlers:
+    - name: Flush known hosts
+      local_action: 
+        module: lineinfile
+        path: ~/.ssh/known_hosts
+        regexp: "^{{host}},{{ipv4}}" 
+        state: absent
+        backup: no
+      vars:
+        host: "{{ansible_hostname}}"
+        ipv4: "{{ansible_default_ipv4.address}}"
+
   tasks:
 
   - name: Install complete - Reboot
     command: systemctl reboot
     ignore_errors: yes
     ignore_unreachable: yes
+    notify: Flush known hosts

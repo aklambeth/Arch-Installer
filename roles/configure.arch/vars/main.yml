@@ -1,4 +1,4 @@
-mkinitcpio_hooks: # Order is important
+mkinitcpio_hooks_encrypt: # Order is important
   - base
   - udev
   - autodetect
@@ -12,5 +12,18 @@ mkinitcpio_hooks: # Order is important
   - filesystems
   - fsck
 
-mkinitcpio_modules:
+mkinitcpio_hooks_base:
+  - base
+  - udev
+  - autodetect
+  - modconf
+  - block
+  - lvm2
+  - filesystems
+  - keyboard
+  - fsck
+
+mkinitcpio_modules_encrypt:
   - ext4
+
+mkinitcpio_modules_base:

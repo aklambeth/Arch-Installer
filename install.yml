@@ -10,17 +10,26 @@
     __boot_device: '/dev/sdb'
     __root_device: '/dev/sda'
 
+  pre_tasks:
+    - name: Flush known hosts from local
+      local_action: 
+        module: lineinfile
+        path: ~/.ssh/known_hosts
+        regexp: "^{{host}},{{ipv4}}" 
+        state: absent
+        backup: no
+      vars:
+        host: "{{ansible_hostname}}"
+        ipv4: "{{ansible_default_ipv4.address}}"
+
   roles: 
     - {role: makeboot.efi, vars: {boot_device: "{{ __boot_device }}" }}
     - {role: encryptroot, vars: {root_device: "{{ __root_device }}", passphrase: "{{ __passphrase }}"}}
     - install.arch
-    - configure.arch
+    - {role: configure.arch, vars: {root_device: "{{ __root_device }}"}}
 
 - name: Create Users
   import_playbook: users.yml
 
 - name: Post Install Tasks
   import_playbook: postinstall.yml
-  
-  
-  

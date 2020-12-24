@@ -1,5 +1,8 @@
 ---
 - include: cryptlvm-passphrase.yml
-  when: passphrase is defined and passphrase | length > 0 
+  when: passphrase is defined and passphrase | length > 0
+
+- include: cryptlvm-keyfile.yml
+  when: passphrase is not defined or passphrase | length < 1
 
 - include: createvolume.yml

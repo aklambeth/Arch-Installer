@@ -1,32 +1,34 @@
 ---
 
-- name: provide default mount options
-  lineinfile:
-    path: /mnt/etc/default/grub
-    owner: root
-    group: root
-    mode: 0644
-    regexp: "^GRUB_CMDLINE_LINUX_DEFAULT="
-    line: "GRUB_CMDLINE_LINUX_DEFAULT=\"loglevel=3 cryptdevice=UUID={{ drive_uuid }}:MyVolGroup:allow-discards quiet\""
+- set_fact:
+        root_drive: "{{ root_device | regex_search('[^/]+$') }}"
 
-- name: enable cryptdisk
-  lineinfile:
-    path: /mnt/etc/default/grub
-    owner: root
-    group: root
-    mode: 0644
-    regexp: "^#GRUB_ENABLE_CRYPTODISK=y"
-    line: "GRUB_ENABLE_CRYPTODISK=y"
+- name: set up encrypted drve
+  block:
+
+    - set_fact:
+        drive_uuid: "{{ ansible_facts['devices'][root_drive]['links']['uuids'][0]}}"
+
+    - name: provide default mount options
+      lineinfile:
+        path: /mnt/etc/default/grub
+        owner: root
+        group: root
+        mode: 0644
+        regexp: "^GRUB_CMDLINE_LINUX_DEFAULT="
+        line: "GRUB_CMDLINE_LINUX_DEFAULT=\"loglevel=3 cryptdevice=UUID={{ drive_uuid }}:MyVolGroup:allow-discards {% if usekeyfile %}cryptkey=rootfs:/crypto_keyfile.bin {%endif%}quiet\""
+
+    - name: enable cryptdisk
+      lineinfile:
+        path: /mnt/etc/default/grub
+        owner: root
+        group: root
+        mode: 0644
+        regexp: "^#GRUB_ENABLE_CRYPTODISK=y"
+        line: "GRUB_ENABLE_CRYPTODISK=y"
+
+  when: encrypted_drive is succeeded
   
-- name: disable uuis
-  lineinfile:
-    path: /mnt/etc/default/grub
-    owner: root
-    group: root
-    mode: 0644
-    regexp: "^#GRUB_DISABLE_LINUX_UUID=true"
-    line: "#GRUB_DISABLE_LINUX_UUID=true"
-
 - name: install grub
   command: chroot /mnt grub-install --target=x86_64-efi --bootloader-id=id=grub_uefi --recheck
   register: chroot_grub_install
