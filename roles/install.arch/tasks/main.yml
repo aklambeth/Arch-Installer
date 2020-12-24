@@ -8,11 +8,15 @@
   include_vars: "{{ansible_virtualization_type|lower}}_packages.yml"
   when: "'guest' in ansible_virtualization_role"
 
-- include: mountfs.yml
+- include: mount.partition.data.yml
+- include: mount.partition.boot.yml
+
+- name: Enable swap
+  command: swapon -v "/dev/{{volume_group_name}}/swap"
 
 - name: Pacstrap base files
   command: pacstrap /mnt {{ package_list | join(' ') }}
   vars:
     package_list: "{{ (base_packages + app_packages + vmguest_packages) }}"
 
-- include: mountchroot.yml
+- include: postinstall.yml

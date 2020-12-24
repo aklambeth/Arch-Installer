@@ -1,0 +1,39 @@
+---
+
+- set_fact:
+    linux_boot_device: "{{boot_device}}1"
+    efi_boot_device: "{{boot_device}}2"
+
+- name: Add boot folder
+  file:
+    path: /mnt/boot
+    state: directory
+    mode: '0755'
+
+- name: Mount boot drive
+  mount:
+    path: /mnt/boot
+    src: "{{ linux_boot_device }}"
+    fstype: ext4
+    state: mounted
+
+- name: Mount EFI boot partition
+  block:
+
+    - name: create EFI folder
+      file:
+        path: /mnt/boot/EFI
+        state: directory
+        mode: '0755'
+        
+    - name: Mount EFI partition
+      mount:
+        path: /mnt/boot/EFI
+        src: "{{ efi_boot_device }}"
+        fstype: vfat
+        state: mounted
+
+  when: boot_type == 'efi'
+
+
+  

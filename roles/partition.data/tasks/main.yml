@@ -1,0 +1,7 @@
+---
+
+- set_fact:
+    encrypt_or_partition: "{% if 'none' == (__passphrase | lower) %}partition{% else %}encrypt{% endif %}"
+
+- include: "{{encrypt_or_partition}}.volume.yml"
+- include: "filesystem.create.yml"

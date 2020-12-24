@@ -1,8 +1,12 @@
 ---
+
 - include: cryptlvm-passphrase.yml
   when: passphrase is defined and passphrase | length > 0
 
 - include: cryptlvm-keyfile.yml
   when: passphrase is not defined or passphrase | length < 1
 
-- include: createvolume.yml
+- name: Create Volume group - cryptlvm
+  community.general.lvg:
+    vg: "{{volume_group_name}}"
+    pvs: /dev/mapper/cryptlvm
