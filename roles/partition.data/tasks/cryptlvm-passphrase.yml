@@ -1,0 +1,8 @@
+---
+- name: Create LUKS container with a passphrase
+  community.crypto.luks_device:
+    device: "{{ root_device | default('/dev/sda') }}"
+    state: "opened"
+    name: "cryptlvm"
+    passphrase: '{{ passphrase }}'
+    type: luks1

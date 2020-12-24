@@ -1,26 +1,47 @@
 ---
 - hosts: arch
-
-  vars_prompt:
-    - name: __passphrase
-      prompt: Encypted volume passphrase?
-      private: no
-
+  
   vars:
     __boot_device: '/dev/sdb'
     __root_device: '/dev/sda'
+    __boot_type: 'efi'
+    __os_type: 'arch'
+    __data_volume_name: 'ArchLinux'
+    
+  vars_prompt:
+    - name: __passphrase
+      prompt: "(press 'enter' for no passpharse, type 'none' for no encryption, Ctrl+C to abort)\r\nEnter Passphrase"
+      private: yes
 
-  roles: 
-    - {role: makeboot.efi, vars: {boot_device: "{{ __boot_device }}" }}
-    - {role: encryptroot, vars: {root_device: "{{ __root_device }}", passphrase: "{{ __passphrase }}"}}
-    - install.arch
-    - configure.arch
+  roles:
+
+    - name: Partition Boot device
+      role: partition.boot
+      vars:
+        boot_device: "{{ __boot_device }}"
+        boot_type: "{{ __boot_type }}"
+
+    - name: Partition data drive
+      role: partition.data
+      vars: 
+        root_device: "{{ __root_device }}"
+        volume_group_name: "{{ __data_volume_name }}"
+        passphrase: "{{ __passphrase }}" 
+
+    - name: Install OS to data partition
+      role: "install.{{ __os_type }}"
+      vars: 
+        boot_device: "{{ __boot_device }}"
+        boot_type: "{{ __boot_type }}"
+
+    - name: Configuring OS
+      role: "configure.{{ __os_type }}"
+      vars:
+        root_device: "{{ __root_device }}"
+        volume_group_name: "{{ __data_volume_name }}"
 
 - name: Create Users
   import_playbook: users.yml
 
 - name: Post Install Tasks
   import_playbook: postinstall.yml
-  
-  
-  

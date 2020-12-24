@@ -1,0 +1,6 @@
+---
+
+- name: Create Volume group
+  community.general.lvg:
+    vg: "{{volume_group_name}}"
+    pvs: "{{root_device}}"

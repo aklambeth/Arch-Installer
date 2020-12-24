@@ -25,14 +25,11 @@
       state: directory
       group: users
       mode: '0700'
-
-  - name: copy vagrant public key
-    copy:
-      src: ./files/vagrant.pub
+      
+  - name: Download foo.conf
+    get_url:
+      url: https://raw.githubusercontent.com/hashicorp/vagrant/master/keys/vagrant.pub
       dest: /mnt/home/vagrant/.ssh/authorized_keys
-      force: yes
-      decrypt: true
-      group: users
       mode: '0700'
 
   - name: set .ssh owner to vagrant user

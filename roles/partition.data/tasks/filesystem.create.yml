@@ -1,0 +1,23 @@
+---
+- name: Create 4g swap partition
+  community.general.lvol:
+    vg: "{{volume_group_name}}"
+    lv: swap
+    size: 4g
+
+- name: Create root partition
+  community.general.lvol:
+    vg: "{{volume_group_name}}"
+    lv: root
+    size: +100%FREE
+    shrink: no
+
+- name: Create a swap filesystem 
+  community.general.filesystem:
+    fstype: swap
+    dev: "/dev/{{volume_group_name}}/swap"
+
+- name: Create a ext4 filesystem
+  community.general.filesystem:
+    fstype: ext4
+    dev: "/dev/{{volume_group_name}}/root"

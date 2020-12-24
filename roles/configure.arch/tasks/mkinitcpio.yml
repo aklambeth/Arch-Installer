@@ -1,5 +1,12 @@
 ---
 
+- set_fact:
+    register_hooks: "base"
+  when: not encrypted_drive
+- set_fact:
+    register_hooks: "encrypt"
+  when: encrypted_drive
+
 - name: configure mkinitcpio Module
   lineinfile:
     path: /mnt/etc/mkinitcpio.conf
@@ -7,8 +14,8 @@
     group: root
     mode: 0644
     regexp: "^MODULES="
-    line: "MODULES=({{ mkinitcpio_modules | join(' ') }})"
-  
+    line: "MODULES=({{ vars['mkinitcpio_modules_' + register_hooks] | join(' ') }})"
+
 - name: configure mkinitcpio Hooks
   lineinfile:
     path: /mnt/etc/mkinitcpio.conf
@@ -16,7 +23,30 @@
     group: root
     mode: 0644
     regexp: "^HOOKS="
-    line: "HOOKS=({{ mkinitcpio_hooks | join(' ') }})"
+    line: "HOOKS=({{ vars['mkinitcpio_hooks_' + register_hooks] | join(' ') }})"
+
+- name: Copy key file
+  block:
+
+    - name: Copy key file
+      copy:
+        src: "~/crypto_keyfile.bin"
+        dest: "/mnt"
+        remote_src: yes
+        owner: root
+        group: root
+        mode: 0600
+
+    - name: Add Keyfile
+      lineinfile:
+        path: /mnt/etc/mkinitcpio.conf
+        owner: root
+        group: root
+        mode: 0644
+        regexp: "^FILES="
+        line: "FILES=(/crypto_keyfile.bin)"
+
+  when: usekeyfile
 
 - name: run mkinitcpio
   command: chroot /mnt mkinitcpio -p linux

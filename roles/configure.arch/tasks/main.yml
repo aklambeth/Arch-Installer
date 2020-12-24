@@ -2,11 +2,20 @@
 - name: gather facts - again!!
   setup:
 
+- name: test for encrypted device
+  shell:
+    cmd: cryptsetup isLuks "{{root_device}}"
+  register: encrypted_drive
+  ignore_errors: yes
+
+- name: Check for a keyfile
+  stat:
+    path: ~/crypto_keyfile.bin
+  register: keyfile_result 
+
 - set_fact:
-    drive_uuid: "{{ ansible_facts['devices'][root_drive]['links']['uuids'][0]}}"
     network_interface: "{{ ansible_default_ipv4.interface }}"
-  vars:
-    root_drive: 'sda'
+    usekeyfile: "{{ keyfile_result.stat.exists }}"
 
 - include: locale.yml
 - include: fstab.yml

@@ -1,4 +1,5 @@
 ---
+
 - name: Setup boot device
   community.general.parted:
     device: "{{ boot_device | default('/dev/sdb') }}"

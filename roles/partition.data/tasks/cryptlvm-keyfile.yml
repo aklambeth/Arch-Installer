@@ -1,0 +1,14 @@
+---
+
+- name: Generate random key file
+  shell: 
+    cmd: openssl rand -base64 1024 >> crypto_keyfile.bin
+    creates: crypto_keyfile.bin
+
+- name: Create LUKS container with a random keyfile
+  community.crypto.luks_device:
+    device: "{{ root_device | default('/dev/sda') }}"
+    state: "opened"
+    name: "cryptlvm"
+    keyfile: crypto_keyfile.bin
+    type: luks1
